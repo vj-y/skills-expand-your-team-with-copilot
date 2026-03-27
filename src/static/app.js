@@ -499,6 +499,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
 
+    // Build social sharing URLs
+    const shareText = encodeURIComponent(
+      `Check out ${name} at Mergington High School! ${details.description} Schedule: ${formatSchedule(details)}`
+    );
+    const shareUrl = encodeURIComponent(window.location.href);
+    const twitterShareUrl = `https://x.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
+    const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`;
+    const whatsappShareUrl = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
+
     // Create activity tag
     const tagHtml = `
       <span class="activity-tag" style="background-color: ${typeInfo.color}; color: ${typeInfo.textColor}">
@@ -568,6 +577,13 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <div class="share-buttons">
+          <span class="share-label">Share:</span>
+          <a class="share-btn share-btn-twitter" href="${twitterShareUrl}" target="_blank" rel="noopener noreferrer" title="Share on X (Twitter)">𝕏</a>
+          <a class="share-btn share-btn-facebook" href="${facebookShareUrl}" target="_blank" rel="noopener noreferrer" title="Share on Facebook">f</a>
+          <a class="share-btn share-btn-whatsapp" href="${whatsappShareUrl}" target="_blank" rel="noopener noreferrer" title="Share on WhatsApp">💬</a>
+          <button class="share-btn share-btn-copy" title="Copy link">🔗</button>
+        </div>
       </div>
     `;
 
@@ -586,6 +602,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handler for copy link button
+    const copyButton = activityCard.querySelector(".share-btn-copy");
+    copyButton.addEventListener("click", () => {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          copyButton.textContent = "✓";
+          setTimeout(() => { copyButton.textContent = "🔗"; }, 2000);
+        })
+        .catch(() => {
+          // Fallback for browsers without clipboard API
+          const temp = document.createElement("input");
+          temp.value = url;
+          document.body.appendChild(temp);
+          temp.select();
+          document.execCommand("copy");
+          document.body.removeChild(temp);
+          copyButton.textContent = "✓";
+          setTimeout(() => { copyButton.textContent = "🔗"; }, 2000);
+        });
+    });
 
     activitiesList.appendChild(activityCard);
   }
